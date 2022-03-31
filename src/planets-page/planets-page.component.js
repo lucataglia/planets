@@ -1,83 +1,59 @@
-import React, { useReducer, useEffect } from "react";
-import PlanetList from "../planet-list/planet-list.component.js";
-import SelectedPlanet from "./selected-planet/selected-planet.component.js";
-import { get } from "lodash";
-import { getPlanets } from "../utils/api.js";
-import { Button } from "@react-mf/styleguide";
+import React from "react";
+import { useHistory } from "react-router-dom";
 
-export default function PlanetPage(props) {
-  const initialState = {
-    planets: [],
-    loading: false,
-    page: 0,
-    nextPage: false,
-  };
+let count = 0;
+function Planets() {
+  count = count + 1;
 
-  const [state, dispatch] = useReducer(reducer, initialState);
+  // eslint-disable-next-line no-console
+  console.debug("*** Re-render <App /> component");
 
-  useEffect(() => {
-    dispatch({ type: "fetchPlanets" });
-  }, []);
-  const { page, nextPage, loading } = state;
-  const { pathname } = props.location;
-  const regexSearch = /[0-9]+/.exec(pathname);
-  const selected = get(regexSearch, "[0]");
-
-  useEffect(() => {
-    if (page > 0) {
-      const req$ = getPlanets(page).subscribe((results) => {
-        dispatch({
-          type: "addPlanets",
-          payload: {
-            nextPage: !!results.next,
-            results: results.results,
-          },
-        });
-      });
-    }
-  }, [page]);
+  const history = useHistory();
 
   return (
-    <div>
-      <div className="flex">
-        <div className="p-6 w-1/3">
-          {nextPage ? (
-            <Button
-              disabled={loading || !nextPage}
-              loading={loading}
-              onClick={() => {
-                dispatch({ type: "fetchPlanets" });
-              }}
-            >
-              Fetch More Planets
-            </Button>
-          ) : null}
-          <PlanetList {...state} />
+    <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+        <strong>Intro</strong>
+        The window.history.pushState method is useful when the URL must be
+        updated to store the
+        <br />
+        the app state into the URL. That will allow the user to share the URL to
+        someone else that
+        <br />
+        will se exactly what the first user was seeing.
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+        <strong>Demo</strong>
+
+        <div>
+          Execute the following line of code{" "}
+          <strong>from the console of the Browser dev tools.</strong>
+          <br />
+          The App component will be re-rendered. The same will happen if you
+          click the button
+          <br />
+          (please check the console.debug)
         </div>
-        <div className="w-2/3 p-6 border-l-2 border-white">
-          <div className="selectedPlanet">
-            <SelectedPlanet selectedId={selected} />
-          </div>
-        </div>
+
+        <pre>
+          {`window.history.pushState({}, \'\',  window.location.origin + window.location.pathname + \'?fakeParam=${
+            count + 1
+          }\')`}
+        </pre>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+        <button
+          onClick={() => history.push({ search: `fakeParam=${count + 1}` })}
+          style={{ maxWidth: "350px" }}
+        >
+          Click here to invoke react-router-dom navigate
+        </button>
+        App component re-render <strong>{count}</strong>
       </div>
     </div>
   );
 }
 
-function reducer(state, action) {
-  const newState = { ...state };
-  switch (action.type) {
-    case "addPlanets":
-      const { payload } = action;
-      newState.loading = false;
-      newState.nextPage = payload.nextPage;
-      newState.planets = [...newState.planets, ...payload.results];
-      return newState;
-    case "fetchPlanets":
-      newState.loading = true;
-      newState.page = newState.page + 1;
-      return newState;
-    default:
-      return state;
-  }
-}
+export default Planets;
