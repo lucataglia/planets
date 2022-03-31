@@ -46,7 +46,12 @@ function Planets() {
       <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
         <button
           onClick={() => history.push({ search: `fakeParam=${count + 1}` })}
-          style={{ maxWidth: "350px" }}
+          style={{
+            maxWidth: "350px",
+            background: "white",
+            color: "black",
+            borderRadius: "1rem",
+          }}
         >
           Click here to invoke react-router-dom navigate
         </button>
